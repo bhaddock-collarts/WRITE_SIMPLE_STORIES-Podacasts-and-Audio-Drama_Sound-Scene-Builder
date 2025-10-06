@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sound Scene Builder</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 800px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #f5576c;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .score {
+            text-align: center;
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .scene-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            color: white;
+        }
+        
+        .scene-title {
+            font-size: 1.4em;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .scene-description {
+            font-size: 1.1em;
+            line-height: 1.6;
+            text-align: center;
+        }
+        
+        .instruction {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 5px solid #ffc107;
+            color: #856404;
+        }
+        
+        .sound-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .sound-option {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border: 3px solid #e0e0e0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .sound-option:hover {
+            border-color: #f5576c;
+            transform: scale(1.05);
+        }
+        
+        .sound-option.selected {
+            border-color: #667eea;
+            background: #e8eaf6;
+        }
+        
+        .sound-option.correct {
+            border-color: #4CAF50;
+            background: #e8f5e9;
+        }
+        
+        .sound-option.incorrect {
+            border-color: #f44336;
+            background: #ffebee;
+        }
+        
+        .sound-emoji {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .sound-label {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .sound-description {
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        .check-btn {
+            background: #f5576c;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1em;
+            border-radius: 8px;
+            cursor: pointer;
+            display: block;
+            margin: 20px auto;
+            width: 100%;
+            max-width: 300px;
+        }
+        
+        .check-btn:hover {
+            background: #e04658;
+        }
+        
+        .check-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .feedback {
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .feedback.show {
+            display: block;
+        }
+        
+        .feedback.correct {
+            background: #e8f5e9;
+            border-left: 5px solid #4CAF50;
+            color: #2e7d32;
+        }
+        
+        .feedback.incorrect {
+            background: #ffebee;
+            border-left: 5px solid #f44336;
+            color: #c62828;
+        }
+        
+        .feedback-title {
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+        
+        .next-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1em;
+            border-radius: 8px;
+            cursor: pointer;
+            display: none;
+            margin: 20px auto;
+            width: 100%;
+            max-width: 300px;
+        }
+        
+        .next-btn:hover {
+            background: #5568d3;
+        }
+        
+        .next-btn.show {
+            display: block;
+        }
+        
+        .final-score {
+            text-align: center;
+            display: none;
+        }
+        
+        .final-score.show {
+            display: block;
+        }
+        
+        .final-score h2 {
+            color: #f5576c;
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+        
+        .restart-btn {
+            background: #764ba2;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1em;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        
+        .restart-btn:hover {
+            background: #653a8c;
+        }
+
+        @media (max-width: 600px) {
+            .sound-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎧 Sound Scene Builder</h1>
+        <p class="subtitle">Create effective audio worlds with sound</p>
+        
+        <div class="score">Score: <span id="score">0</span>/5</div>
+        
+        <div id="game-area">
+            <div class="scene-card">
+                <div class="scene-title" id="scene-title"></div>
+                <div class="scene-description" id="scene-description"></div>
+            </div>
+            
+            <div class="instruction" id="instruction"></div>
+            
+            <div class="sound-grid" id="sound-grid"></div>
+            
+            <button class="check-btn" id="check-btn">Check My Scene</button>
+            
+            <div class="feedback" id="feedback">
+                <div class="feedback-title" id="feedback-title"></div>
+                <div id="feedback-text"></div>
+            </div>
+            
+            <button class="next-btn" id="next-btn">Next Scene →</button>
+        </div>
+        
+        <div class="final-score" id="final-score">
+            <h2>All Scenes Complete!</h2>
+            <p style="font-size: 1.5em; margin: 20px 0;">Final Score: <span id="final-score-value"></span>/5</p>
+            <p id="final-message" style="font-size: 1.2em; color: #666; margin-bottom: 20px;"></p>
+            <button class="restart-btn" onclick="location.reload()">Build More Scenes</button>
+        </div>
+    </div>
+
+    <script>
+        const scenes = [
+            {
+                title: "Scene 1: Coffee Shop Meeting",
+                description: "Two characters meet for the first time at a busy coffee shop. You need to establish the setting through sound alone.",
+                instruction: "Select the THREE sound elements that best create this setting:",
+                sounds: [
+                    { emoji: "☕", label: "Espresso Machine", description: "Hissing steam, grinding beans", correct: true },
+                    { emoji: "🗣️", label: "Background Chatter", description: "Multiple conversations, overlapping voices", correct: true },
+                    { emoji: "🚗", label: "Traffic Noise", description: "Cars passing, honking", correct: false },
+                    { emoji: "🎵", label: "Soft Jazz Music", description: "Ambient café music", correct: true },
+                    { emoji: "🐦", label: "Birds Chirping", description: "Outdoor nature sounds", correct: false },
+                    { emoji: "📺", label: "TV News", description: "News broadcast playing", correct: false }
+                ],
+                correctCount: 3,
+                feedback: {
+                    correct: "Perfect! ✅ Espresso machine, background chatter, and jazz music all signal 'coffee shop' to listeners. These sounds work together to create the complete setting in the audience's mind without needing visual description.",
+                    incorrect: "Not quite! Think about what sounds are uniquely 'coffee shop.' Traffic is too general (could be anywhere in the city), birds suggest outdoors, and TV news isn't typical for cafés. The espresso machine, background chatter, and music specifically create a café atmosphere."
+                }
+            },
+            {
+                title: "Scene 2: Tense Hospital Corridor",
+                description: "A character anxiously waits for news outside an operating room. Sound needs to create the mood and setting.",
+                instruction: "Select the THREE sound elements that establish setting AND mood:",
+                sounds: [
+                    { emoji: "👟", label: "Squeaking Shoes", description: "Rubber soles on linoleum", correct: true },
+                    { emoji: "📢", label: "PA System", description: "Muffled announcements, beeping", correct: true },
+                    { emoji: "🎸", label: "Rock Music", description: "Upbeat electric guitar", correct: false },
+                    { emoji: "💓", label: "Heart Monitor", description: "Rhythmic beeping in distance", correct: true },
+                    { emoji: "🌊", label: "Ocean Waves", description: "Gentle crashing waves", correct: false },
+                    { emoji: "🎉", label: "Party Sounds", description: "Laughter and celebration", correct: false }
+                ],
+                correctCount: 3,
+                feedback: {
+                    correct: "Excellent! ✅ Squeaking shoes on linoleum, PA system, and distant heart monitor all say 'hospital' while also building tension. These sounds create both the physical setting AND the anxious mood without any dialogue.",
+                    incorrect: "Remember: sound does multiple jobs! Rock music, ocean waves, and party sounds don't fit the hospital setting OR the tense mood. Squeaking shoes, PA announcements, and heart monitors establish location AND create the right emotional atmosphere."
+                }
+            },
+            {
+                title: "Scene 3: Character Voice Design",
+                description: "A nervous student is about to give a speech. How should the voice acting sound to reveal their emotional state?",
+                instruction: "Select the THREE vocal characteristics that best reveal nervousness:",
+                sounds: [
+                    { emoji: "🗣️", label: "Quick, Rushed Pace", description: "Talking faster than normal", correct: true },
+                    { emoji: "😤", label: "Shaky Breath", description: "Audible nervous breathing", correct: true },
+                    { emoji: "💪", label: "Loud, Confident", description: "Strong, projected voice", correct: false },
+                    { emoji: "🤔", label: "Long Pauses", description: "Frequent hesitations, 'um', 'uh'", correct: true },
+                    { emoji: "😴", label: "Slow, Monotone", description: "Flat, bored delivery", correct: false },
+                    { emoji: "🎭", label: "Deep, Commanding", description: "Authoritative bass tone", correct: false }
+                ],
+                correctCount: 3,
+                feedback: {
+                    correct: "Spot on! ✅ Quick pace, shaky breath, and hesitation all signal nervousness through vocal performance. In audio drama, dialogue carries enormous weight - how something is said reveals as much as what is said.",
+                    incorrect: "Think about how nervousness actually sounds! A loud confident voice, monotone delivery, or commanding tone suggest very different emotions. Quick pace, shaky breathing, and hesitation naturally communicate the character's nervous state to listeners."
+                }
+            },
+            {
+                title: "Scene 4: Transitioning Between Locations",
+                description: "Your audio drama moves from a quiet library to a bustling train station. How do you mark this transition?",
+                instruction: "Select the THREE elements that best signal the location change:",
+                sounds: [
+                    { emoji: "🎵", label: "Music Bridge", description: "Brief musical transition", correct: true },
+                    { emoji: "🔇", label: "Silence", description: "A beat of quiet between scenes", correct: true },
+                    { emoji: "🚂", label: "Train Announcement", description: "'Now arriving at...'", correct: true },
+                    { emoji: "📚", label: "Page Turning", description: "Continuous throughout", correct: false },
+                    { emoji: "🤐", label: "Same Dialogue", description: "Character keeps talking with no audio change", correct: false },
+                    { emoji: "📺", label: "TV Commercial", description: "Advertisement playing", correct: false }
+                ],
+                correctCount: 3,
+                feedback: {
+                    correct: "Perfect! ✅ Music bridge, silence, and train announcement clearly mark the transition. Music and ambient sound create mood AND mark transitions between scenes - listeners need clear audio signposts when locations change.",
+                    incorrect: "Without visuals, listeners need clear markers! Continuous page turning and unbroken dialogue don't signal change, and TV commercials don't fit either location. A music bridge, beat of silence, and train announcement tell listeners 'we've moved to a new place.'"
+                }
+            },
+            {
+                title: "Scene 5: Spatial Orientation Through Dialogue",
+                description: "A character enters a huge, empty warehouse. The dialogue needs to help listeners understand the space without being too obvious.",
+                instruction: "Select the THREE dialogue approaches that balance spatial orientation with natural speech:",
+                sounds: [
+                    { emoji: "👟", label: "Echo Reference", description: "'Hello?' [voice echoes]", correct: true },
+                    { emoji: "📏", label: "Physical Action", description: "'These walls must be 20 feet high'", correct: true },
+                    { emoji: "🗣️", label: "Overly Obvious", description: "'As I walk into this large, empty warehouse...'", correct: false },
+                    { emoji: "😮", label: "Reaction Sound", description: "Character whistles - hears it echo back", correct: true },
+                    { emoji: "📖", label: "Narrator Explains", description: "Voiceover: 'The warehouse was enormous'", correct: false },
+                    { emoji: "🤐", label: "No Spatial Info", description: "Dialogue doesn't mention space at all", correct: false }
+                ],
+                correctCount: 3,
+                feedback: {
+                    correct: "Brilliant! ✅ Echo reference, noticing physical details, and reaction sounds all orientate listeners naturally. Dialogue needs to reveal the environment, but the delicate balance is doing it without characters awkwardly announcing where they are.",
+                    incorrect: "Remember the delicate balance! 'As I walk into this large warehouse...' is too obvious and unnatural. Providing NO spatial info leaves listeners lost. Echo effects, natural observations ('These walls must be 20 feet high'), and reactions naturally establish the space."
+                }
+            }
+        ];
+
+        let currentScene = 0;
+        let score = 0;
+        let selectedSounds = [];
+
+        function loadScene() {
+            const scene = scenes[currentScene];
+            document.getElementById('scene-title').textContent = scene.title;
+            document.getElementById('scene-description').textContent = scene.description;
+            document.getElementById('instruction').textContent = scene.instruction;
+            
+            const gridDiv = document.getElementById('sound-grid');
+            gridDiv.innerHTML = '';
+            selectedSounds = [];
+            
+            scene.sounds.forEach((sound, index) => {
+                const soundDiv = document.createElement('div');
+                soundDiv.className = 'sound-option';
+                soundDiv.innerHTML = `
+                    <div class="sound-emoji">${sound.emoji}</div>
+                    <div class="sound-label">${sound.label}</div>
+                    <div class="sound-description">${sound.description}</div>
+                `;
+                soundDiv.onclick = () => toggleSound(index, soundDiv);
+                gridDiv.appendChild(soundDiv);
+            });
+            
+            document.getElementById('feedback').classList.remove('show');
+            document.getElementById('next-btn').classList.remove('show');
+            document.getElementById('check-btn').disabled = false;
+            document.getElementById('check-btn').style.display = 'block';
+        }
+
+        function toggleSound(index, element) {
+            const scene = scenes[currentScene];
+            
+            if (element.classList.contains('correct') || element.classList.contains('incorrect')) {
+                return;
+            }
+            
+            const soundIndex = selectedSounds.indexOf(index);
+            if (soundIndex > -1) {
+                selectedSounds.splice(soundIndex, 1);
+                element.classList.remove('selected');
+            } else {
+                if (selectedSounds.length < scene.correctCount) {
+                    selectedSounds.push(index);
+                    element.classList.add('selected');
+                }
+            }
+            
+            document.getElementById('check-btn').disabled = selectedSounds.length !== scene.correctCount;
+        }
+
+        function checkScene() {
+            const scene = scenes[currentScene];
+            const soundDivs = document.querySelectorAll('.sound-option');
+            
+            let allCorrect = true;
+            selectedSounds.forEach(index => {
+                if (scene.sounds[index].correct) {
+                    soundDivs[index].classList.remove('selected');
+                    soundDivs[index].classList.add('correct');
+                } else {
+                    soundDivs[index].classList.remove('selected');
+                    soundDivs[index].classList.add('incorrect');
+                    allCorrect = false;
+                }
+            });
+            
+            scene.sounds.forEach((sound, index) => {
+                if (sound.correct && !selectedSounds.includes(index)) {
+                    soundDivs[index].classList.add('correct');
+                    allCorrect = false;
+                }
+            });
+            
+            if (allCorrect) {
+                score++;
+                document.getElementById('score').textContent = score;
+            }
+            
+            showFeedback(allCorrect ? scene.feedback.correct : scene.feedback.incorrect, allCorrect);
+            document.getElementById('check-btn').style.display = 'none';
+            
+            if (currentScene < scenes.length - 1) {
+                document.getElementById('next-btn').classList.add('show');
+            } else {
+                setTimeout(showFinalScore, 1500);
+            }
+        }
+
+        function showFeedback(text, correct) {
+            const feedback = document.getElementById('feedback');
+            document.getElementById('feedback-title').textContent = correct ? '🎉 Perfect Sound Design!' : '💡 Not Quite - Here\'s Why:';
+            document.getElementById('feedback-text').textContent = text;
+            feedback.className = 'feedback show ' + (correct ? 'correct' : 'incorrect');
+        }
+
+        function showFinalScore() {
+            document.getElementById('game-area').style.display = 'none';
+            document.getElementById('final-score').classList.add('show');
+            document.getElementById('final-score-value').textContent = score;
+            
+            let message = '';
+            if (score === 5) message = "🌟 Outstanding! You understand how sound creates complete audio worlds!";
+            else if (score >= 3) message = "👏 Great work! You've grasped the key principles of audio storytelling!";
+            else message = "💡 Good effort! Review the feedback to master audio scene building!";
+            
+            document.getElementById('final-message').textContent = message;
+        }
+
+        document.getElementById('check-btn').onclick = checkScene;
+        document.getElementById('next-btn').onclick = () => {
+            currentScene++;
+            loadScene();
+        };
+
+        loadScene();
+    </script>
+</body>
+</html>
